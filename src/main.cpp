@@ -6,6 +6,7 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <HTTPClient.h>
+#include <app_secrets.h>
 
 M5EPD_Canvas canvas(&M5.EPD);
 
@@ -15,16 +16,16 @@ char humStr[10];
 float temHere;
 float humHere;
 
-const char *ssid = "xxx";
-const char *password = "xxx";
+const char *ssid = WLAN_SSID;
+const char *password = WLAN_PASS;
 String town = "Ennetmoos";
 String country = "CH";
 const String endpoint = "http://api.openweathermap.org/data/2.5/weather?q=" + town + "," + country + "&units=metric&APPID=";
-const String key = "xxx";
+const String key = WEATHER_KEY;
 
-String payload = ""; //whole json
-String tmp = "";     //temperatur
-String hum = "";     //humidity
+String payload = ""; // whole json
+String tmp = "";     // temperature
+String hum = "";     // humidity
 
 StaticJsonDocument<1000> doc;
 
@@ -44,6 +45,7 @@ void setup(void)
   M5.EPD.Clear(true);
   M5.RTC.begin();
   M5.SHT30.Begin();
+
   canvas.createCanvas(540, 960);
   canvas.useFreetypeFont(false);
   canvas.setFreeFont(&Orbitron_Medium_25);
@@ -117,13 +119,14 @@ void getData()
   canvas.setFreeFont(&Orbitron_Bold_44);
   canvas.drawString(tmp.substring(0, 4), 340, 260);
   canvas.drawString(String(temHere).substring(0, 4), 180, 260);
+
   canvas.setFreeFont(&Orbitron_Bold_66);
   canvas.drawString(hum, 348, 580);
   canvas.drawString(String((int)humHere), 190, 580);
+
   canvas.setFreeFont(&Orbitron_Medium_25);
   canvas.drawString(town2, 122, 784);
   canvas.drawString(pressure + " hPa", 164, 846);
-
   canvas.drawString(windSpeed + " m/s", 122, 816);
 }
 
@@ -140,7 +143,7 @@ void loop()
   // 2018-05-28T16:00:13Z
   // We need to extract date and time
   formattedDate = timeClient.getFormattedDate();
-  // Serial.println(formattedDate);
+  Serial.println(formattedDate);
 
   int splitT = formattedDate.indexOf("T");
   dayStamp = formattedDate.substring(0, splitT);
