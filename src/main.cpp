@@ -10,8 +10,8 @@
 
 M5EPD_Canvas canvas(&M5.EPD);
 
-const char *ssid = WLAN_SSID;
-const char *password = WLAN_PASS;
+String ssid = "";
+
 String api_town = "Ennetmoos";
 String api_country = "CH";
 const String endpoint = "http://api.openweathermap.org/data/2.5/weather?q=" + api_town + "," + api_country + "&units=metric&APPID=";
@@ -29,9 +29,31 @@ String dayStamp;
 String timeStamp;
 
 void initWiFi() {
-  WiFi.begin(ssid, password);
+  int n = WiFi.scanNetworks();
+  int mobileApFound = -1;
 
-  Serial.println("Connecting to WiFi ..");
+  if (n == 0) {
+    Serial.println("no networks found...");
+    return;
+  } else {
+    for (int i = 0; i < n; ++i) {
+      String ssid = WiFi.SSID(i);
+
+      if (ssid == MOBILE_SSID) {
+        mobileApFound = i;
+      }
+    }
+  }
+
+  if (mobileApFound > -1) {
+    ssid = MOBILE_SSID;
+    WiFi.begin(MOBILE_SSID, MOBILE_PASS);
+  } else {
+    ssid = WLAN_SSID;
+    WiFi.begin(WLAN_SSID, WLAN_PASS);
+  }
+
+  Serial.println("Connecting to WiFi - ");
   int count_try = 0;
 
   while (WiFi.status() != WL_CONNECTED && count_try < WIFI_MAX_TRY)
@@ -168,6 +190,9 @@ void loop()
     String current = timeStamp.substring(0, 5);
 
     canvas.drawString(current, 140, 884);
+
+    // SSID info
+    canvas.drawString(ssid, 340, 784);
   }
 
   canvas.drawString(String(M5.getBatteryVoltage() / 1000.00), 430, 884);
