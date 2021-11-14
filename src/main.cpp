@@ -176,5 +176,10 @@ void loop()
 
   Serial.println("going into sleep mode...");
   delay(2000);
-  M5.shutdown(600);
+
+  if (WiFi.status() == WL_CONNECTED) {
+    M5.shutdown(600);
+  } else {
+    M5.shutdown(120);
+  }
 }
